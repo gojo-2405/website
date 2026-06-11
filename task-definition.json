@@ -4,26 +4,22 @@
   "executionRoleArn": "arn:aws:iam::618246140803:role/ecsTaskExecutionRole",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
-  "cpu": "512",
-  "memory": "1024",
+  "cpu": "256",
+  "memory": "512",
   "containerDefinitions": [
     {
       "name": "actions",
       "image": "618246140803.dkr.ecr.us-east-1.amazonaws.com/actions",
-      "cpu": 300,
+      "cpu": 256,
       "memory": 512,
-      "memoryReservation": 256,
       "portMappings": [
         {
           "containerPort": 80,
-          "hostPort": 80,
           "protocol": "tcp"
         }
       ],
       "essential": true,
       "environment": [],
-      "mountPoints": [],
-      "volumesFrom": [],
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
@@ -31,10 +27,7 @@
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "actions"
         }
-      },
-      "systemControls": []
+      }
     }
-  ],
-  "volumes": [],
-  "placementConstraints": []
+  ]
 }
