@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 env:
   AWS_REGION: us-east-1
-  AWS_ACCOUNT_ID: "009049668042"
+  AWS_ACCOUNT_ID: "618246140803"
   ECR_REPOSITORY: actions
   ECS_CLUSTER: actions
   ECS_SERVICE: actions-service
@@ -26,7 +27,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
@@ -39,10 +40,8 @@ jobs:
         id: build-image
         run: |
           IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${{ github.sha }}
-
           docker build -t $IMAGE_URI .
           docker push $IMAGE_URI
-
           echo "image=$IMAGE_URI" >> $GITHUB_OUTPUT
 
       - name: Render ECS task definition
