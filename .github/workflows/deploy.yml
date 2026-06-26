@@ -27,6 +27,19 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      - name: Show GitHub OIDC JWT token
+        run: |
+          TOKEN=$(curl -s \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" \
+            | jq -r '.value')
+
+          echo "GitHub OIDC JWT Token:"
+          echo "$TOKEN"
+
+          echo "Decoded JWT Payload:"
+          echo "$TOKEN" | cut -d "." -f2 | base64 -d || true
+
       - name: Configure AWS credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
