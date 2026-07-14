@@ -1,4 +1,4 @@
-FROM nginx:1.18
+FROM ubuntu:20.04
 
 RUN apt-get update && \
     apt-get install -y procps curl && \
