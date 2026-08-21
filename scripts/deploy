@@ -9,19 +9,19 @@ sed -e "s;GROUP_NAME;${GIT_BRANCH};g" ${JSON_FILE}-new-${BUILD_NUMBER}.json > ${
 
 cat ${JSON_FILE}-${BUILD_NUMBER}.json
 
-aws ecs register-task-definition --family ${TASK_FAMILY} --cli-input-json file://${JSON_FILE}-${BUILD_NUMBER}.json --cli-input-json file://${JSON_FILE}-${BUILD_NUMBER}.json --region eu-north-1 --profile testuser
+aws ecs register-task-definition --family ${TASK_FAMILY} --cli-input-json file://${JSON_FILE}-${BUILD_NUMBER}.json --cli-input-json file://${JSON_FILE}-${BUILD_NUMBER}.json --region us-east-1 --profile jenkins
 
 # Update the service with the new task definition and desired count
-TASK_REVISION=`aws ecs describe-task-definition --task-definition ${TASK_FAMILY} --region eu-north-1 --profile testuser | egrep "revision" | tr "/" " " | awk '{print $2}' | sed 's/"$//'`
+TASK_REVISION=`aws ecs describe-task-definition --task-definition ${TASK_FAMILY} --region us-east-1 --profile jenkins | egrep "revision" | tr "/" " " | awk '{print $2}' | sed 's/"$//'`
 echo $TASK_REVISION
-DESIRED_COUNT=`aws ecs describe-services --cluster ${CLUSTER} --services ${SERVICE_NAME}  --region eu-north-1 --profile testuser | egrep "desiredCount" | tr "/" " " | awk '{print $2}' | sed 's/,$//'`
+DESIRED_COUNT=`aws ecs describe-services --cluster ${CLUSTER} --services ${SERVICE_NAME}  --region us-east-1 --profile jenkins | egrep "desiredCount" | tr "/" " " | awk '{print $2}' | sed 's/,$//'`
 echo $DESIRED_COUNT
-OLD_TASK_ID=$(aws ecs list-tasks --cluster ${CLUSTER} --desired-status RUNNING --service ${SERVICE_NAME} --region eu-north-1 --profile testuser | egrep "task/" | sed -E "s/.*task\/(.*)\"/\1/")
+OLD_TASK_ID=$(aws ecs list-tasks --cluster ${CLUSTER} --desired-status RUNNING --service ${SERVICE_NAME} --region us-east-1 --profile jenkins | egrep "task/" | sed -E "s/.*task\/(.*)\"/\1/")
 
-aws ecs update-service --cluster ${CLUSTER} --service ${SERVICE_NAME} --desired-count 1 --task-definition ${TASK_FAMILY} --force-new-deployment --region eu-north-1 --profile testuser
+aws ecs update-service --cluster ${CLUSTER} --service ${SERVICE_NAME} --desired-count 1 --task-definition ${TASK_FAMILY} --force-new-deployment --region us-east-1 --profile jenkins
 
 # Jenkins Job wait until service is avaliable in cluster
-aws ecs wait services-stable --cluster ${CLUSTER} --services ${SERVICE_NAME} --region eu-north-1 --profile testuser
+aws ecs wait services-stable --cluster ${CLUSTER} --services ${SERVICE_NAME} --region us-east-1 --profile jenkins
 if [ $? -eq 0 ]; then 
 echo "Docker build got success"
 else 
@@ -44,12 +44,12 @@ JSON_FILE="oralia-sandbox-dev"
 startDeploy
 elif [ "$GIT_BRANCH" = "main" ]
 then
-SERVICE_NAME="cyber-service"
+SERVICE_NAME="website"
 IMAGE_VERSION="${GIT_BRANCH}-${BUILD_NUMBER}"
-TASK_FAMILY="cyber"
-CLUSTER="earth"
+TASK_FAMILY="website"
+CLUSTER="tictactoe-cluster"
 START_CMD="start"
-JSON_FILE="taskdef"
+JSON_FILE="task-definition"
 startDeploy
 elif [ "$GIT_BRANCH" = "uat" ]
 then

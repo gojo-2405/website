@@ -2,7 +2,7 @@
 
 startBuild()
 {
-ECR_REPO=463367046625.dkr.ecr.eu-north-1.amazonaws.com/cyber
+ECR_REPO=618246140803.dkr.ecr.us-east-1.amazonaws.com/website
 DOCKER_BUILD_TAG=$GIT_BRANCH-${BUILD_NUMBER}
 docker build -t $ECR_REPO:$DOCKER_BUILD_TAG --pull=true .
 if [ $? -eq 0 ]; then
@@ -16,15 +16,15 @@ IMAGE_ID=$(docker images -q $ECR_REPO | awk "NR==1{print $1}")
 echo $IMAGE_ID
 docker tag $IMAGE_ID $ECR_REPO:latest
 docker inspect $IMAGE_ID
-aws sts get-caller-identity --profile testuser
-aws ecr get-login-password --region eu-north-1 --profile testuser | docker login --username AWS --password-stdin 463367046625.dkr.ecr.eu-north-1.amazonaws.com
+aws sts get-caller-identity --profile jenkins
+aws ecr get-login-password --region us-east-1 --profile jenkins | docker login --username AWS --password-stdin 463367046625.dkr.ecr.us-east-1.amazonaws.com
 docker push $ECR_REPO:$DOCKER_BUILD_TAG && docker push $ECR_REPO:latest
 if [ $? -eq 0 ]; then
 echo "Docker Push got success"
-docker logout 463367046625.dkr.ecr.eu-north-1.amazonaws.com
+docker logout 618246140803.dkr.ecr.us-east-1.amazonaws.com
 else
 echo "Docker Push was failed"
-docker logout 463367046625.dkr.ecr.eu-north-1.amazonaws.com
+docker logout 618246140803.dkr.ecr.us-east-1.amazonaws.com
 exit 1
 fi
 }
